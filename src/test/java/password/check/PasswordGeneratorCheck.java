@@ -1,33 +1,57 @@
 package password.check;
 
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Test;
 import org.openqa.selenium.By;
+
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import java.util.concurrent.ThreadLocalRandom;
+
 
 public class PasswordGeneratorCheck {
 
+        WebDriver driver;
+
     @Test
-    void passwordGeneratorCheckForNull() {
+    public void passwordGeneratorCheckForNull() {
         System.setProperty("webdriver.chrome.driver","libs/chromedriver.exe");
-        WebDriver driver = new ChromeDriver();
+
+        driver = new ChromeDriver();
+
         driver.get("https://passwordsgenerator.net/ru/");
 
-        driver.findElement(By.xpath("//div[contains(@class, 'button GenerateBtn')]")).click();
+        driver.findElement(By.xpath("//div[@class='button GenerateBtn']")).click();
 
-        //WebDriverWait wait = new WebDriverWait(driver, 10);
+        String password =  driver.findElement(By.xpath("//input[@id='final_pass']")).getAttribute("value");
 
-        WebElement element =  driver.findElement(By.xpath("//input[@id='final_pass']"));
-        String password = element.getAttribute("value");
-        //wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[(@id, 'final_pass') and (.!,'')]")));
+        if (password.equals("")) {
+            System.out.println("в поле пароля пустое значение");
+        }
 
+        driver.findElement(By.xpath("//div[@class='button GenerateBtn']")).click();
 
+        if (password.equals(driver.findElement(By.xpath("//input[@id='final_pass']")).getAttribute("value"))){
+            System.out.println("Новый сгенерированный пароль совпадает с предыдущим");
+        }
 
-        System.out.println(password);
+        driver.findElement(By.xpath("//input[@id='Symbols']")).click();
 
+        int randomNum = ThreadLocalRandom.current().nextInt(6, 128);
+
+        String randomLength= "//option[@value='" + randomNum + "']";
+
+        driver.findElement(By.xpath(randomLength)).click();
+
+        driver.findElement(By.xpath("//div[@class='button GenerateBtn']")).click();
+
+        if (driver.findElement(By.xpath("//input[@id='final_pass']")).getAttribute("value").length() == randomNum) {
+            System.out.println("Длина пароля: " + randomNum);
+        }
+    }
+
+    @After
+    public void afterTest() {
+        driver.quit();
     }
 }
